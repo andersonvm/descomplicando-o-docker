@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import redis
 import string
 import random
@@ -8,12 +8,14 @@ from prometheus_client import Counter, start_http_server, generate_latest
 
 app = Flask(__name__)
 
+# Configurações do Redis
 redis_host = os.environ.get('REDIS_HOST', 'redis-service')
 redis_port = 6379
 redis_password = ""
 
 r = redis.StrictRedis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True)
 
+# Métrica do Prometheus
 senha_gerada_counter = Counter('senha_gerada', 'Contador de senhas geradas')
 
 
@@ -70,10 +72,11 @@ def listar_senhas():
 
 @app.route('/metrics')
 def metrics():
-    return generate_latest()
+    # CORREÇÃO: Retorna como texto plano para o Prometheus não reclamar
+    return Response(generate_latest(), mimetype='text/plain')
 
 if __name__ == '__main__':
     import logging
     logging.basicConfig(filename='error.log', level=logging.DEBUG)
-    start_http_server(8088)
+    # CORREÇÃO: host='0.0.0.0' permite acesso externo ao container
     app.run(host='0.0.0.0', debug=False)

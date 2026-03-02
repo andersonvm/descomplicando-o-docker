@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s # Intervalo de coleta de métricas
+
+scrape_configs:
+  - job_name: 'giropops-api'
+    scrape_interval: 5s
+    static_configs:
+      # Nome do container da aplicação e a porta onde o Flask roda
+      - targets: ['giropops-senhas:5000']
